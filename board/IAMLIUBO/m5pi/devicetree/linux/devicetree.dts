@@ -1,0 +1,138 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR X11)
+
+/dts-v1/;
+#include "suniv-f1c100s.dtsi"
+
+/ {
+	model = "IAMLIUBO M5Pi";
+	compatible = "allwinner,suniv-f1c100s";
+
+	chosen {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		bootargs = "console=ttyS0,115200 earlyprintk rootwait init=/preinit root=/dev/mmcblk0p3 rw rootfstype=ext4";
+		// bootargs = "console=tty0 init=/preinit root=/dev/mmcblk0p3 rw rootfstype=ext4";
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		blink {
+			label = "m5pi:blink:usr";
+			gpios = <&pio 4 2 GPIO_ACTIVE_LOW>; /* PE2 */
+			linux,default-trigger = "heartbeat";
+			default-state = "on";
+		};
+
+		backlight {
+			label = "m5pi:backlight:usr";
+			gpios = <&pio 4 6 GPIO_ACTIVE_HIGH>; /* PE6 */
+			default-state = "on";
+		};
+
+	};
+};
+
+&pio {
+	spi1_pins: spi1-pins{
+		pins = "PA0","PA1","PA2","PA3";
+		function = "spi1";
+		bias-pull-up;
+	};
+};
+
+&spi0 {
+        pinctrl-names = "default";
+        pinctrl-0 = <&spi0_pins>;
+        status = "okay";
+};
+
+&spi1 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi1_pins>;
+
+    ili9341@0 {
+        compatible = "ilitek,ili9341";
+		spi-max-frequency = <48000000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0>;
+		rotate = <0>;
+		spi-cpol;
+		spi-cpha;
+		bgr;
+		fps = <30>;
+		buswidth = <8>;
+		dc-gpios = <&pio 4 4 GPIO_ACTIVE_HIGH>;     /* PE4 */
+		reset-gpios = <&pio 4 5 GPIO_ACTIVE_LOW>;   /* PE5 */
+		// led-gpios = <&pio 4 6 GPIO_ACTIVE_HIGH>;    /* PE6 */
+		debug = <0>;
+    };
+};
+
+&reg_vcc3v0 {
+	status = "disabled";
+};
+
+&reg_vcc5v0 {
+	status = "disabled";
+};
+
+
+&uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart0_pe_pins>;
+	status = "okay";
+};
+
+&mmc0 {
+	status = "okay";
+	broken-cd;
+};
+
+&otg_sram {
+	status = "okay";
+};
+
+&usb_otg {
+	dr_mode = "otg"; /* otg host peripheral */
+	status = "okay";
+};
+
+&usbphy {
+	usb0_id_det-gpio = <&pio 4 3 GPIO_ACTIVE_HIGH>; /* PE3 */
+	status = "okay";
+};
+
+&codec {
+	allwinner,audio-routing =
+		"Headphone", "HP",
+		"Headphone", "HPCOM",
+		"LINEIN", "Line In",
+		"FMINL", "Left FM In",
+		"FMINR", "Right FM In",
+		"MIC", "Mic";
+	status = "okay";
+};
+
+&i2c0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c0_pe_pins>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+	clock-frequency = <400000>;
+	status = "okay";
+
+	mpu6050: mpu6050@68 {
+		compatible = "invensense,mpu6050";
+		reg = <0x68>;
+		interrupt-parent = <&pio>;
+		interrupts = <3 0 IRQ_TYPE_EDGE_FALLING>;
+		irq-gpios = <&pio 3 0 GPIO_ACTIVE_HIGH>;
+		// gpios = <&pio 3 0 GPIO_ACTIVE_LOW>;
+		status = "okay";
+	};
+};

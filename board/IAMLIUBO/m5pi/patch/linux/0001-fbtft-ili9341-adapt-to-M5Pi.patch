@@ -1,0 +1,61 @@
+diff --git a/drivers/staging/fbtft/fb_ili9341.c b/drivers/staging/fbtft/fb_ili9341.c
+index 9ccd0823c..2fa47a759 100644
+--- a/drivers/staging/fbtft/fb_ili9341.c
++++ b/drivers/staging/fbtft/fb_ili9341.c
+@@ -20,11 +20,11 @@
+ #include "fbtft.h"
+ 
+ #define DRVNAME		"fb_ili9341"
+-#define WIDTH		240
+-#define HEIGHT		320
++#define WIDTH		320
++#define HEIGHT		240
+ #define TXBUFLEN	(4 * PAGE_SIZE)
+-#define DEFAULT_GAMMA	"1F 1A 18 0A 0F 06 45 87 32 0A 07 02 07 05 00\n" \
+-			"00 25 27 05 10 09 3A 78 4D 05 18 0D 38 3A 1F"
++#define DEFAULT_GAMMA	"E0 0F 00 0C 11 04 11 08 37 89 4C 06 0C 0A 2E 34 0F\n" \
++			"E1 0F 00 0B 11 05 13 09 33 67 48 07 0E 0B 2E 33 0F"
+ 
+ static int init_display(struct fbtft_par *par)
+ {
+@@ -57,6 +57,7 @@ static int init_display(struct fbtft_par *par)
+ 	/* ------------display-------------------------------------- */
+ 	write_reg(par, 0xB7, 0x07); /* entry mode set */
+ 	write_reg(par, 0xB6, 0x0A, 0x82, 0x27, 0x00);
++	write_reg(par, 0x21);
+ 	write_reg(par, MIPI_DCS_EXIT_SLEEP_MODE);
+ 	mdelay(100);
+ 	write_reg(par, MIPI_DCS_SET_DISPLAY_ON);
+@@ -87,19 +88,19 @@ static int set_var(struct fbtft_par *par)
+ 	switch (par->info->var.rotate) {
+ 	case 0:
+ 		write_reg(par, MIPI_DCS_SET_ADDRESS_MODE,
+-			  MEM_X | (par->bgr << MEM_BGR));
++			  MEM_H | MEM_L | (par->bgr << MEM_BGR));
+ 		break;
+ 	case 270:
+ 		write_reg(par, MIPI_DCS_SET_ADDRESS_MODE,
+-			  MEM_V | MEM_L | (par->bgr << MEM_BGR));
++			  MEM_V | MEM_L | MEM_X | (par->bgr << MEM_BGR));
+ 		break;
+ 	case 180:
+ 		write_reg(par, MIPI_DCS_SET_ADDRESS_MODE,
+-			  MEM_Y | (par->bgr << MEM_BGR));
++			  MEM_Y | MEM_L | MEM_X | (par->bgr << MEM_BGR));
+ 		break;
+ 	case 90:
+ 		write_reg(par, MIPI_DCS_SET_ADDRESS_MODE,
+-			  MEM_Y | MEM_X | MEM_V | (par->bgr << MEM_BGR));
++			  MEM_Y | MEM_V | MEM_L | (par->bgr << MEM_BGR));
+ 		break;
+ 	}
+ 
+@@ -135,7 +136,7 @@ static struct fbtft_display display = {
+ 	.height = HEIGHT,
+ 	.txbuflen = TXBUFLEN,
+ 	.gamma_num = 2,
+-	.gamma_len = 15,
++	.gamma_len = 17,
+ 	.gamma = DEFAULT_GAMMA,
+ 	.fbtftops = {
+ 		.init_display = init_display,
