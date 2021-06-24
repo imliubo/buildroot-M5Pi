@@ -4,7 +4,7 @@
 #
 
 start() {
-    # printf "Starting uMTPrd: "
+    printf "Starting uMTPrd: "
     mount none /sys/kernel/config -t configfs
     mkdir /sys/kernel/config/usb_gadget/g1
     cd /sys/kernel/config/usb_gadget/g1
@@ -27,14 +27,14 @@ start() {
     start-stop-daemon -S -q -m -b -p /var/run/umtprd.pid -x /usr/sbin/umtprd
     sleep 1
     ls /sys/class/udc/ > /sys/kernel/config/usb_gadget/g1/UDC
-    # [ $? = 0 ] && echo "OK" || echo "FAIL"
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 
 stop() {
-    # printf "Stopping uMTPrd: "
+    printf "Stopping uMTPrd: "
     echo > /sys/kernel/config/usb_gadget/g1/UDC
     start-stop-daemon -K -q -p /var/run/umtprd.pid -x /usr/sbin/umtprd
-    # [ $? = 0 ] && echo "OK" || echo "FAIL"
+    [ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 
 case "$1" in

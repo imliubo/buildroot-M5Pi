@@ -26,12 +26,13 @@
 			default-state = "on";
 		};
 
-		backlight {
-			label = "m5pi:backlight:usr";
-			gpios = <&pio 4 6 GPIO_ACTIVE_HIGH>; /* PE6 */
-			default-state = "on";
-		};
+	};
 
+	backlight {
+		compatible = "pwm-backlight";
+		pwms = <&pwm 1 500000 0>;  /* pwm1 PE6 */
+		brightness-levels = <0 4 8 16 32 64 128 255>;
+		default-brightness-level = <0>;
 	};
 };
 
@@ -56,7 +57,7 @@
 
     ili9341@0 {
         compatible = "ilitek,ili9341";
-		spi-max-frequency = <48000000>;
+		spi-max-frequency = <80000000>;
 		#address-cells = <1>;
 		#size-cells = <1>;
 		reg = <0>;
@@ -68,7 +69,6 @@
 		buswidth = <8>;
 		dc-gpios = <&pio 4 4 GPIO_ACTIVE_HIGH>;     /* PE4 */
 		reset-gpios = <&pio 4 5 GPIO_ACTIVE_LOW>;   /* PE5 */
-		// led-gpios = <&pio 4 6 GPIO_ACTIVE_HIGH>;    /* PE6 */
 		debug = <0>;
     };
 };
@@ -81,6 +81,11 @@
 	status = "disabled";
 };
 
+&pwm {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pwm1_pe_pins>;
+	status = "okay";
+};
 
 &uart0 {
 	pinctrl-names = "default";
@@ -103,7 +108,7 @@
 };
 
 &usbphy {
-	usb0_id_det-gpio = <&pio 4 3 GPIO_ACTIVE_HIGH>; /* PE3 */
+	dr_mode = "host";
 	status = "okay";
 };
 
@@ -121,8 +126,6 @@
 &i2c0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c0_pe_pins>;
-	#address-cells = <1>;
-	#size-cells = <0>;
 	clock-frequency = <400000>;
 	status = "okay";
 
@@ -130,9 +133,18 @@
 		compatible = "invensense,mpu6050";
 		reg = <0x68>;
 		interrupt-parent = <&pio>;
-		interrupts = <3 0 IRQ_TYPE_EDGE_FALLING>;
-		irq-gpios = <&pio 3 0 GPIO_ACTIVE_HIGH>;
-		// gpios = <&pio 3 0 GPIO_ACTIVE_LOW>;
+		interrupts = <4 3 IRQ_TYPE_EDGE_FALLING>;  /* PE3 */
 		status = "okay";
 	};
+
+	ft6x06@38 {
+		compatible = "focaltech,ft6236";
+		reg = <0x38>;
+		interrupt-parent = <&pio>;
+		interrupts = <3 2 IRQ_TYPE_LEVEL_LOW>;      /* PD2 */
+		touchscreen-size-x = <320>;
+		touchscreen-size-y = <240>;
+		status = "okay";
+	};
+
 };
