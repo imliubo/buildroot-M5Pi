@@ -1,0 +1,4 @@
+config BR2_PACKAGE_ESP8089_SPI
+	bool "ESP8089 Wi-Fi Chip"
+	help
+        Not yet.
